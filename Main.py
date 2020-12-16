@@ -1,4 +1,15 @@
+from tkinter import *
+
 def main():
-    print("Tchou tchou motherfucker")
+    fenetre = Tk()
+
+    label = Label(fenetre, text="Hello World")
+    label.pack()
+
+    fenetre.mainloop()
 
 main()
+
+
+
+
