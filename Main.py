@@ -59,7 +59,7 @@ class Window(QWidget):
                    [0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
         # intégre le delegate pour lignes en gras et les cases en couleur
-        self.delegate = MonDelegate(self.table)
+        self.delegate = ItemDelegate(self.table)
         self.table.setItemDelegate(self.delegate)
 
         # redessine les lignes en gras et les cases de couleur
@@ -113,17 +113,14 @@ class Window(QWidget):
 
 
 #############################################################################
-class MonDelegate(QItemDelegate):
+class ItemDelegate(QItemDelegate):
 
-    # ========================================================================
     def __init__(self, parent=None):
-        super(MonDelegate, self).__init__(parent)
+        super(ItemDelegate, self).__init__(parent)
 
-    # ========================================================================
-    def grilleinit(self, g):
-        self.g0 = g
+    def grilleinit(self, grille):
+        self.grille = grille
 
-    # ========================================================================
     def paint(self, painter, option, index):
         """appelé case par case pour en dessiner le contenu"""
 
