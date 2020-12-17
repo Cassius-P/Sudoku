@@ -1,13 +1,15 @@
 from __future__ import division
-from ItemDelegate import *
-from PyQt5.QtGui import QFont
+from math import *
+from PyQt5.QtGui import QFont, QResizeEvent
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui
+
+from Grille import Grille
 
 
 class Window(QWidget):
 
-    def __init__(self, parent=None, size=9):
+    def __init__(self, parent=None, size=int):
         super(Window, self).__init__(parent)
 
         # crée la grille 9x9
@@ -40,7 +42,7 @@ class Window(QWidget):
         self.table.setFont(font)
 
         # taille de la fenêtre
-        self.resize(53 * 9, 53 * 9)
+        self.setFixedSize(52 * self.size +250, 53 * self.size)
 
         # positionne la table dans la fenêtre
         posit = QGridLayout()
@@ -48,15 +50,7 @@ class Window(QWidget):
         self.setLayout(posit)
 
         # Grille test
-        self.grilleTest = [[0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0]]
+        self.grilleTest = Grille(self.size).getGrille()
 
         # intégre le delegate pour lignes en gras et les cases en couleur
         self.delegate = ItemDelegate(self.table)
@@ -73,8 +67,8 @@ class Window(QWidget):
         self.table.setCurrentCell(0, 0)
 
     def showGrille(self, grille):
-        for row in range(len(grille[0])):
-            for col in range(len(grille)):
+        for row in range(self.size):
+            for col in range(self.size):
                 if grille[row][col] == 0:
                     self.table.item(row, col).setText(u"")
                     self.table.item(row, col).setFlags(
@@ -108,3 +102,30 @@ class Window(QWidget):
         pen.setWidth(2)
         painter.setPen(pen)
         painter.drawLine(x1, y1, x2, y2)
+
+
+
+class ItemDelegate(QItemDelegate):
+
+    def __init__(self, parent=None):
+        super(ItemDelegate, self).__init__(parent)
+
+
+    def grilleinit(self, grille, size):
+        self.grille = grille
+        self.size = size
+
+    def paint(self, painter, option, index):
+
+        row, col = index.row(), index.column()
+        if row == 0:
+            Window.caseBorder(painter, option, 'h')
+        elif (row + 1) % sqrt(self.size) == 0:
+            Window.caseBorder(painter, option, 'b')
+
+        if col == 0:
+            Window.caseBorder(painter, option, 'g')
+        elif (col + 1) % sqrt(self.size) == 0:
+            Window.caseBorder(painter, option, 'd')
+
+        QItemDelegate.paint(self, painter, option, index)
