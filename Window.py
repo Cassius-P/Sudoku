@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui
 
 from Grille import Grille
-
+import sys
 
 class Window(QWidget):
 
@@ -31,6 +31,7 @@ class Window(QWidget):
         # remplit la grille avec des QTableWidgetItem
         for row in range(self.size):
             for col in range(self.size):
+
                 tableItem = QTableWidgetItem()
                 tableItem.setTextAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
                 self.table.setItem(row, col, tableItem)
@@ -103,8 +104,6 @@ class Window(QWidget):
         painter.setPen(pen)
         painter.drawLine(x1, y1, x2, y2)
 
-
-
 class ItemDelegate(QItemDelegate):
 
     def __init__(self, parent=None):
@@ -129,3 +128,50 @@ class ItemDelegate(QItemDelegate):
             Window.caseBorder(painter, option, 'd')
 
         QItemDelegate.paint(self, painter, option, index)
+
+
+
+
+class QCustomTableWidget (QTableWidget):
+    def __init__ (self, parent = None):
+        super(QCustomTableWidget, self).__init__(parent)
+        # Setup row & column data
+        listsVerticalHeaderItem = ['Device 1', 'Device 2', 'Device 3', 'Device 4', 'Device 5']
+        self.setRowCount(len(listsVerticalHeaderItem))
+        for index in range(self.rowCount()):
+            self.setVerticalHeaderItem(index, QTableWidgetItem(listsVerticalHeaderItem[index]))
+        listsVerticalHeaderItem = ['Device 1', 'Device 2', 'Device 3', 'Device 4']
+        self.setColumnCount(5)
+        listsHorizontalHeaderItem = ['Option 1', 'Option 2']
+        self.setColumnCount(len(listsHorizontalHeaderItem))
+        for index in range(self.columnCount()):
+            self.setHorizontalHeaderItem(index, QTableWidgetItem(listsHorizontalHeaderItem[index]))
+
+    def dataChanged (self, topLeftQModelIndex, bottomRightQModelIndex):
+        row,column = topLeftQModelIndex
+        dataQTableWidgetItem = self.item(row, column)
+        print('###### Data Changed  ######')
+        print ('row    :', row + 1)
+        print ('column :', column + 1)
+        #self.connectNotify(QtCore.SIGNAL('dataChanged'), row, column, dataQTableWidgetItem)
+        QTableWidget.dataChanged(self, topLeftQModelIndex, bottomRightQModelIndex)
+
+class QCustomWidget (QWidget):
+    def __init__(self, parent = None):
+        super(QCustomWidget, self).__init__(parent)
+        self.myQCustomTableWidget = QCustomTableWidget(self)
+        self.myQLabel = QLabel('Track edited data', self)
+        myQVBoxLayout = QVBoxLayout()
+        myQVBoxLayout.addWidget(self.myQLabel)
+        myQVBoxLayout.addWidget(self.myQCustomTableWidget)
+        self.setLayout(myQVBoxLayout)
+        self.myQCustomTableWidget.dataChanged((0,0),(15,15))
+
+    def setTrackData (self, row, column, dataQTableWidgetItem):
+        self.myQLabel.setText('Last updated\nRow : %d, Column : %d, Data : %s' % (row + 1, column + 1, str(dataQTableWidgetItem.text())))
+
+if __name__ == '__main__':
+    myQApplication = QApplication(sys.argv)
+    myQCustomWidget = QCustomWidget()
+    myQCustomWidget.show()
+    sys.exit(myQApplication.exec_())
