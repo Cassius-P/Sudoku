@@ -8,6 +8,7 @@ from Grille import Grille
 import keyboard
 import sys
 
+
 class Game(QWidget):
 
     def __init__(self, parent=None, size=int, load=[]):
@@ -35,15 +36,13 @@ class Game(QWidget):
             for col in range(self.size):
                 self.table.setColumnWidth(col, 50)
 
-
         # remplit la grille avec des QTableWidgetItem
         for row in range(self.size):
             for col in range(self.size):
-
                 tableItem = QTableWidgetItem()
-                #val= self.testGrid[row][col]
+                # val= self.testGrid[row][col]
                 tableItem.setTextAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
-                #tableItem.setText(str(val))
+                # tableItem.setText(str(val))
                 self.table.setItem(row, col, tableItem)
 
         # définit la police de caractère par défaut de la table
@@ -53,7 +52,7 @@ class Game(QWidget):
         self.table.setFont(font)
 
         # taille de la fenêtre
-        self.setFixedSize(52 * self.size+88, 53 * self.size + 26)
+        self.setFixedSize(52 * self.size + 88, 53 * self.size + 26)
 
         # positionne la table dans la fenêtre
         posit = QGridLayout()
@@ -82,7 +81,6 @@ class Game(QWidget):
         self.table.setFocus()
         self.table.setCurrentCell(0, 0)
 
-
     def verifButton(self):
         for i in range(self.size):
             print(self.matrix[i])
@@ -90,30 +88,27 @@ class Game(QWidget):
 
     def changeValue(self):
         ac = self.table.currentItem()
-        if(isinstance(ac, QTableWidgetItem)):
+        if (isinstance(ac, QTableWidgetItem)):
             row = ac.row()
             col = ac.column()
             try:
                 indice = False
-                if(keyboard.is_pressed('ctrl')):
-                    indice= True
-                if(self.size == 9):
+                if (keyboard.is_pressed('ctrl')):
+                    indice = True
+                if (self.size == 9):
                     val = int(ac.text())
 
                     self.matrix[row][col] = val if indice != True else 0
-                    self.setCouleur((row,col), QColor(255,255,255) if indice != True else QColor(51, 153, 255));
+                    self.setCouleur((row, col), QColor(255, 255, 255) if indice != True else QColor(51, 153, 255));
                 else:
                     print("Grid of 16")
 
-                #self.grilleTest.afficher()
+                # self.grilleTest.afficher()
                 # print("un nombre", val, "row", row, "col", col, "\n")
             except ValueError:
                 print("pas un nombre")
                 self.table.item(row, col).setText('');
-                #self.setCouleur((row, col), QColor(240,0,0))
-
-
-
+                # self.setCouleur((row, col), QColor(240,0,0))
 
     def showGrille(self, grille):
         for row in range(self.size):
@@ -121,7 +116,7 @@ class Game(QWidget):
                 if grille[row][col] == 0:
                     self.table.item(row, col).setText(u"")
                     self.table.item(row, col).setFlags(
-                        QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEditable )
+                        QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEditable)
                 else:
                     self.table.item(row, col).setText(str(grille[row][col]))
                     self.table.item(row, col).setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
@@ -130,11 +125,11 @@ class Game(QWidget):
                     font.setWeight(70)
                     self.table.item(row, col).setFont(font)
 
-                    #Détruit le design (grille)
-                    #self.table.item(row, col).setBackground(QColor(228, 228, 228))
+                    # Détruit le design (grille)
+                    # self.table.item(row, col).setBackground(QColor(228, 228, 228))
 
     def setCouleur(self, coordinates, color):
-        x,y = coordinates
+        x, y = coordinates
         self.table.item(x, y).setBackground(color)
         return True
 
@@ -156,11 +151,11 @@ class Game(QWidget):
         painter.setPen(pen)
         painter.drawLine(x1, y1, x2, y2)
 
+
 class ItemDelegate(QItemDelegate):
 
     def __init__(self, parent=None):
         super(ItemDelegate, self).__init__(parent)
-
 
     def grilleinit(self, grille, size):
         self.grille = grille
@@ -179,5 +174,3 @@ class ItemDelegate(QItemDelegate):
             Game.caseBorder(painter, option, 'd')
 
         QItemDelegate.paint(self, painter, option, index)
-
-
