@@ -17,6 +17,7 @@ class HomeScreenC(QWidget):
 
 
 
+
     def jsp(self):
         print("jsp")
 
