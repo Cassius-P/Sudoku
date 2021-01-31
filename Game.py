@@ -10,7 +10,7 @@ import sys
 
 class Game(QWidget):
 
-    def __init__(self, parent=None, size=int):
+    def __init__(self, parent=None, size=int, load=[]):
         super(Game, self).__init__(parent)
 
         # crée la grille et le boutonde verif

@@ -19,6 +19,7 @@ class HomeScreen():
         self.window.show()
         sys.exit(app.exec_())
 
+
 class Handler():
     def __init__(self):
         return self
