@@ -1,5 +1,7 @@
 from __future__ import division
+import numpy as np
 from MethodHandler import Sudoku
 
 if __name__ == "__main__":
-    Sudoku(16)
+    HomeScreen()
+    Sudoku(9)

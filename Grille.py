@@ -1,42 +1,71 @@
+from math import *
+from random import sample
 class Grille:
-    matrix = []
 
     def __init__(self, taille=9):
 
         self.size = taille
+        self.base = int(sqrt(taille))
+        self.side = taille
 
-        # Taille de 9 pour verif par bloc
-        for i in range(taille):
-            row = []
-            for j in range(taille):
-                row.append(0)
-            self.matrix.append(row)
-            print(row)
+        rBase = range(self.base)
+        rows = [g * self.base + r for g in self.shuffle(rBase) for r in self.shuffle(rBase)]
+        cols = [g * self.base + c for g in self.shuffle(rBase) for c in self.shuffle(rBase)]
+        nums = self.shuffle(range(1, self.base * self.base + 1))
+
+        # produce board using randomized baseline pattern
+        self.boardComplete = [[nums[self.pattern(r, c)] for c in cols] for r in rows]
+        for i in range(self.size):
+            print(self.boardComplete[i])
 
     def getGrille(self):
-        return self.matrix
+        gridIncomplete = []
+        for r in range(self.size):
+            row =[]
+            for c in range(self.size):
+               row.append(self.boardComplete[r][c])
+            gridIncomplete.append(row)
+        squares = self.side * self.side
+        empties = squares * 1 // 2
+
+        for p in sample(range(squares), empties):
+            gridIncomplete[p // self.side][p % self.side] = 0
+
+        return gridIncomplete
+
+    def getCompleteGrille(self):
+        return self.boardComplete
+
+    def pattern(self, row, col):
+        return (self.base*(row%self.base)+row//self.base+col)%(self.side)
+
+    # randomize rows, columns and numbers (of valid base pattern)
+    from random import sample
+    def shuffle(self, s):
+        return sample(s, len(s))
 
     def getValeur(self, row, column):
         print(self.matrix[row][column])
 
     def setValeur(self, value, shown, row, column):
-        row = row - 1
-        column = column - 1
         if shown == False:
             value = -value
-        verified, completed = self.testGrille(row, column, value)
-        if verified:
-            self.matrix[row][column] = value
-        # self.afficher()
+        self.matrix[row][column] = value
 
     def afficher(self):
-        print("Grille\n")
-        for i in range(self.size):
-            print(self.matrix[i])
 
-    def testGrille(self, row=0, column=0, value=0):
+        print("Grille imcomplete\n")
+        for i in range(self.size):
+            print(self.boardIncomplete[i])
+
+        print("\n Complete")
+        for i in range(self.size):
+            print(self.boardComplete[i])
+
+    """def testGrille(self, row=0, column=0, value=0):
         completed = True;
-        verified = self.ValueInBlock(row, column, value)
+        #verified = self.ValueInBlock(row, column, value)
+        verified = True
         for i in range(self.size):
             for j in range(self.size):
                 if self.matrix[i][j] <= 0:
@@ -44,7 +73,7 @@ class Grille:
                 if self.matrix[i][j] == value:
                     if i == row or j == column:
                         verified = False
-                        print("Le nombre", value, "existe deja dans en", i, j, )
+                        print("Le nombre", value, "existe deja en", i, j, )
                         break;
 
         return verified, completed
@@ -75,13 +104,13 @@ class Grille:
                     unique = False;
                     print("Le nombre", value, "existe deja dans le bloc en", i, j, )
                     break;
-        return unique;
+        return unique;"""
 
-    def estRemplie(self):
+    """def estRemplie(self):
         completed = True;
         for i in range(self.size):
             for j in range(self.size):
                 if self.matrix[i][j] <= 0:
                     completed = False;
 
-        return completed
+        return completed"""

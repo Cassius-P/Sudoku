@@ -1,19 +1,26 @@
 from __future__ import division
 from math import *
-from PyQt5.QtGui import QFont, QResizeEvent
+from PyQt5.QtGui import QFont, QResizeEvent, QColor
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui
-
+from VerifGrid import *
 from Grille import Grille
+import keyboard
 import sys
 
-class Window(QWidget):
+class Game(QWidget):
 
     def __init__(self, parent=None, size=int):
-        super(Window, self).__init__(parent)
+        super(Game, self).__init__(parent)
 
-        # crée la grille 9x9
+        # crée la grille et le boutonde verif
         self.table = QTableWidget(self)
+        self.table.itemChanged.connect(self.changeValue)
+
+        button = QPushButton("Verifier grille")
+        button.clicked.connect(self.verifButton)
+        self.verif = button
+
         self.size = size
         self.table.setRowCount(self.size)
         self.table.setColumnCount(self.size)
@@ -28,12 +35,15 @@ class Window(QWidget):
             for col in range(self.size):
                 self.table.setColumnWidth(col, 50)
 
+
         # remplit la grille avec des QTableWidgetItem
         for row in range(self.size):
             for col in range(self.size):
 
                 tableItem = QTableWidgetItem()
+                #val= self.testGrid[row][col]
                 tableItem.setTextAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+                #tableItem.setText(str(val))
                 self.table.setItem(row, col, tableItem)
 
         # définit la police de caractère par défaut de la table
@@ -43,29 +53,67 @@ class Window(QWidget):
         self.table.setFont(font)
 
         # taille de la fenêtre
-        self.setFixedSize(52 * self.size +250, 53 * self.size)
+        self.setFixedSize(52 * self.size+88, 53 * self.size + 26)
 
         # positionne la table dans la fenêtre
         posit = QGridLayout()
         posit.addWidget(self.table, 0, 0)
+        posit.addWidget(self.verif, 52 * self.size, 52 * self.size)
         self.setLayout(posit)
 
         # Grille test
-        self.grilleTest = Grille(self.size).getGrille()
+        self.grilleTest = Grille(self.size)
+        self.full = self.grilleTest.getCompleteGrille()
+
+        self.startMatrix = self.grilleTest.getGrille()
+        self.matrix = self.startMatrix
 
         # intégre le delegate pour lignes en gras et les cases en couleur
         self.delegate = ItemDelegate(self.table)
         self.table.setItemDelegate(self.delegate)
 
         # redessine les lignes en gras et les cases de couleur
-        self.delegate.grilleinit(self.grilleTest, self.size)
+        self.delegate.grilleinit(self.matrix, self.size)
 
         # affiche la grille courante
-        self.showGrille(self.grilleTest)
+        self.showGrille(self.matrix)
 
         # place le focus
         self.table.setFocus()
         self.table.setCurrentCell(0, 0)
+
+
+    def verifButton(self):
+        for i in range(self.size):
+            print(self.matrix[i])
+        VerifGrid(self.matrix, self.size)
+
+    def changeValue(self):
+        ac = self.table.currentItem()
+        if(isinstance(ac, QTableWidgetItem)):
+            row = ac.row()
+            col = ac.column()
+            try:
+                indice = False
+                if(keyboard.is_pressed('ctrl')):
+                    indice= True
+                if(self.size == 9):
+                    val = int(ac.text())
+
+                    self.matrix[row][col] = val if indice != True else 0
+                    self.setCouleur((row,col), QColor(255,255,255) if indice != True else QColor(51, 153, 255));
+                else:
+                    print("Grid of 16")
+
+                #self.grilleTest.afficher()
+                # print("un nombre", val, "row", row, "col", col, "\n")
+            except ValueError:
+                print("pas un nombre")
+                self.table.item(row, col).setText('');
+                #self.setCouleur((row, col), QColor(240,0,0))
+
+
+
 
     def showGrille(self, grille):
         for row in range(self.size):
@@ -73,17 +121,21 @@ class Window(QWidget):
                 if grille[row][col] == 0:
                     self.table.item(row, col).setText(u"")
                     self.table.item(row, col).setFlags(
-                        QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEditable)
+                        QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEditable )
                 else:
                     self.table.item(row, col).setText(str(grille[row][col]))
                     self.table.item(row, col).setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
 
-    def setCouleur(self, coordinates):
-        # couleur = QColor(160, 255, 160, 255)  # vert clair
-        # self.table.item(2, 4).setBackground(couleur)
+                    font = QFont()
+                    font.setWeight(70)
+                    self.table.item(row, col).setFont(font)
 
-        # couleur = QColor(255, 160, 160, 255)  # rouge clair
-        # self.table.item(6, 3).setBackground(couleur)
+                    #Détruit le design (grille)
+                    #self.table.item(row, col).setBackground(QColor(228, 228, 228))
+
+    def setCouleur(self, coordinates, color):
+        x,y = coordinates
+        self.table.item(x, y).setBackground(color)
         return True
 
     def caseBorder(painter, option, ligne):
@@ -118,60 +170,14 @@ class ItemDelegate(QItemDelegate):
 
         row, col = index.row(), index.column()
         if row == 0:
-            Window.caseBorder(painter, option, 'h')
+            Game.caseBorder(painter, option, 'h')
         elif (row + 1) % sqrt(self.size) == 0:
-            Window.caseBorder(painter, option, 'b')
-
+            Game.caseBorder(painter, option, 'b')
         if col == 0:
-            Window.caseBorder(painter, option, 'g')
+            Game.caseBorder(painter, option, 'g')
         elif (col + 1) % sqrt(self.size) == 0:
-            Window.caseBorder(painter, option, 'd')
+            Game.caseBorder(painter, option, 'd')
 
         QItemDelegate.paint(self, painter, option, index)
 
 
-
-
-class QCustomTableWidget (QTableWidget):
-    def __init__ (self, parent = None):
-        super(QCustomTableWidget, self).__init__(parent)
-        # Setup row & column data
-        listsVerticalHeaderItem = ['Device 1', 'Device 2', 'Device 3', 'Device 4', 'Device 5']
-        self.setRowCount(len(listsVerticalHeaderItem))
-        for index in range(self.rowCount()):
-            self.setVerticalHeaderItem(index, QTableWidgetItem(listsVerticalHeaderItem[index]))
-        listsVerticalHeaderItem = ['Device 1', 'Device 2', 'Device 3', 'Device 4']
-        self.setColumnCount(5)
-        listsHorizontalHeaderItem = ['Option 1', 'Option 2']
-        self.setColumnCount(len(listsHorizontalHeaderItem))
-        for index in range(self.columnCount()):
-            self.setHorizontalHeaderItem(index, QTableWidgetItem(listsHorizontalHeaderItem[index]))
-
-    def dataChanged (self, topLeftQModelIndex, bottomRightQModelIndex):
-        row,column = topLeftQModelIndex
-        dataQTableWidgetItem = self.item(row, column)
-        print('###### Data Changed  ######')
-        print ('row    :', row + 1)
-        print ('column :', column + 1)
-        #self.connectNotify(QtCore.SIGNAL('dataChanged'), row, column, dataQTableWidgetItem)
-        QTableWidget.dataChanged(self, topLeftQModelIndex, bottomRightQModelIndex)
-
-class QCustomWidget (QWidget):
-    def __init__(self, parent = None):
-        super(QCustomWidget, self).__init__(parent)
-        self.myQCustomTableWidget = QCustomTableWidget(self)
-        self.myQLabel = QLabel('Track edited data', self)
-        myQVBoxLayout = QVBoxLayout()
-        myQVBoxLayout.addWidget(self.myQLabel)
-        myQVBoxLayout.addWidget(self.myQCustomTableWidget)
-        self.setLayout(myQVBoxLayout)
-        self.myQCustomTableWidget.dataChanged((0,0),(15,15))
-
-    def setTrackData (self, row, column, dataQTableWidgetItem):
-        self.myQLabel.setText('Last updated\nRow : %d, Column : %d, Data : %s' % (row + 1, column + 1, str(dataQTableWidgetItem.text())))
-
-if __name__ == '__main__':
-    myQApplication = QApplication(sys.argv)
-    myQCustomWidget = QCustomWidget()
-    myQCustomWidget.show()
-    sys.exit(myQApplication.exec_())
