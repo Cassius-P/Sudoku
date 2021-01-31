@@ -10,9 +10,12 @@ class HomeScreenC(QMainWindow):
         self.w = None  # No external window yet.
         self.setWindowTitle("Sudoku Launcher")
         self.setWindowIcon(QIcon('icon.png'))
+
+        #Bouton pour charger une partie
         self.load = QPushButton("Charger une partie")
         self.load.clicked.connect(self.chargerPartie)
 
+        #Bouton pour créér une nouvelle partie
         self.newGame = QPushButton("Nouvelle partie")
         self.newGame.clicked.connect(self.startGame)
 
@@ -20,13 +23,13 @@ class HomeScreenC(QMainWindow):
         posit.addWidget(self.load)
         posit.addWidget(self.newGame)
 
-
+        #Widget pour affichage des boutons
         view = QWidget()
         view.setLayout(posit)
 
         self.setCentralWidget(view)
 
-
+    #Création d'une nouvelle fenetre/partie avec grille vide
     def startGame(self):
         self.w = Game(size=9)
         self.w.setWindowTitle("Sudoku")
@@ -35,6 +38,7 @@ class HomeScreenC(QMainWindow):
         self.w.show()
         self.close()
 
+    #Création d'une nouvelle fenêtre/partie avec grille chargée par une sauvegarde
     def chargerPartie(self):
         fileName, _ = QFileDialog.getOpenFileName(self, 'Single File', QtCore.QDir.rootPath(), '*.sudoku')
         if fileName != "":

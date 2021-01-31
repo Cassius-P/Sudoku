@@ -31,18 +31,15 @@ class Game(QWidget):
         self.save = save
 
 
-
-
-
         self.size = size
         self.table.setRowCount(self.size)
         self.table.setColumnCount(self.size)
 
-        # cache les entêtes horizontale et verticale
+        # Cache les entêtes horizontale et verticale
         self.table.horizontalHeader().hide()
         self.table.verticalHeader().hide()
 
-        # définit les cases carrées 50 pixels x 50 pixels
+        # Définit les cases carrées 50 pixels x 50 pixels
         for row in range(self.size):
             self.table.setRowHeight(row, 50)
             for col in range(self.size):
@@ -78,14 +75,16 @@ class Game(QWidget):
         # Grille test
         self.grilleTest = Grille(self.size)
         print("Load : ", load)
+
+        #Chargement de la grille pour chargée et nouvelle partie
         if len(load) == 0:
-            print("ng")
+            print("New game detected")
             self.full = self.grilleTest.getCompleteGrille()
 
             self.startMatrix = self.grilleTest.getGrille()
             self.matrix = self.startMatrix
         else:
-            print("lg")
+            print("Loaded game detectd")
             self.full = load[1]
             self.grilleTest.setGrid(load)
             self.startMatrix = load[0]
@@ -107,7 +106,7 @@ class Game(QWidget):
         self.table.setCurrentCell(0, 0)
 
 
-
+    #Verification d'une grille
     def verifButton(self):
         for i in range(self.size):
             print(self.matrix[i])
@@ -115,8 +114,8 @@ class Game(QWidget):
         self.verif.setText(verif.getStatut())
         self.verif.setDisabled(True)
 
+    #Enregistrement d'une partie
     def saveGame(self):
-
         infos = [self.startMatrix, self.full, self.matrix]
         print('\n' + self.formatNumbers(infos[0]))
         with open(str(time.time())+".sudoku", 'w')as file:
@@ -128,6 +127,7 @@ class Game(QWidget):
 
         self.save.setText("Sauvegardé !")
         self.save.setDisabled(True)
+    #Formatage de la date pour l'enregistrement du fichier de sauvegarde
     def formatNumbers(self, array):
         sep = ''
         stringList = []
@@ -136,6 +136,8 @@ class Game(QWidget):
                 stringList.append(str(n2))
         return sep.join(stringList)
 
+
+    #event quand une case de la grille change de valeur
     def changeValue(self):
         ac = self.table.currentItem()
         if (isinstance(ac, QTableWidgetItem)):
@@ -159,36 +161,41 @@ class Game(QWidget):
                 else:
                     print("Grid of 16")
 
-                # self.grilleTest.afficher()
-                # print("un nombre", val, "row", row, "col", col, "\n")
             except ValueError:
                 print("pas un nombre")
                 self.table.item(row, col).setText('');
                 # self.setCouleur((row, col), QColor(240,0,0))
 
+
+    #Affichage de la grille de départ avec remplssage des valeurs
     def showGrille(self, grille):
         for row in range(self.size):
             for col in range(self.size):
+                #Si la valeur vaut 0, affichage casse vide
                 if grille[row][col] == 0:
                     self.table.item(row, col).setText(u"")
                     self.table.item(row, col).setFlags(
                         QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEditable)
+                #Si valeur différente de 0 affichage valeur non modifiable par utilisateur
                 else:
                     self.table.item(row, col).setText(str(grille[row][col]))
                     self.table.item(row, col).setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
 
+                    #Mise en évidence des valeurs non modifiables
                     font = QFont()
                     font.setWeight(70)
                     self.table.item(row, col).setFont(font)
 
-                    # Détruit le design (grille)
+                    # Détruit le design (grille) donc commenté
                     # self.table.item(row, col).setBackground(QColor(228, 228, 228))
 
+    #Changement de la couleur d'une case
     def setCouleur(self, coordinates, color):
         x, y = coordinates
         self.table.item(x, y).setBackground(color)
         return True
 
+    #Bordure des cases avec 'bold' pour sépration des blocs
     def caseBorder(painter, option, ligne):
         r = option.rect
         x, y, w, h = r.x(), r.y(), r.width(), r.height()
@@ -207,7 +214,7 @@ class Game(QWidget):
         painter.setPen(pen)
         painter.drawLine(x1, y1, x2, y2)
 
-
+#ItemDelagate pour les items de la table, class QTableWidgetItem
 class ItemDelegate(QItemDelegate):
 
     def __init__(self, parent=None):
@@ -217,6 +224,8 @@ class ItemDelegate(QItemDelegate):
         self.grille = grille
         self.size = size
 
+
+    #Definition des bordures cf ligne 195
     def paint(self, painter, option, index):
 
         row, col = index.row(), index.column()
