@@ -22,12 +22,13 @@ class HomeScreenC(QWidget):
         print("jsp")
 
     def chargerPartie(self):
-        fileName, _ = QFileDialog.getOpenFileName(self, 'Single File', QtCore.QDir.rootPath(), '*.xlsm')
-        with open(fileName) as f:
-            contenu = f.readlines()
-        contenu = [x.strip() for x in contenu]
+        fileName, _ = QFileDialog.getOpenFileName(self, 'Single File', QtCore.QDir.rootPath(), '*.sudoku')
+        if fileName != "":
+            with open(fileName) as f:
+                contenu = f.readlines()
+            contenu = [x.strip() for x in contenu]
 
-        self.grille = []
-        for ligne in contenu:
-            self.grille.append([int(x) for x in ligne.split()])
-        Sudoku(9,self.grille)
+            self.grille = []
+            for ligne in contenu:
+                self.grille.append([int(x) for x in ligne.split()])
+            Sudoku(9,self.grille)
