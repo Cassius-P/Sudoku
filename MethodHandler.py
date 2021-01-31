@@ -1,6 +1,7 @@
 from Game import *
 from PyQt5.QtWidgets import *
 from Game import *
+from HomeScreen import HomeScreenC
 import sys
 
 app = QApplication(sys.argv)
@@ -14,8 +15,9 @@ class Sudoku():
 
 class HomeScreen():
     def __init__(self):
-        self.window = HomeScreen()
-        self.window("sudoku")
+
+        self.window = HomeScreenC()
+        self.window.setWindowTitle("HomeScreen")
         self.window.show()
         sys.exit(app.exec_())
 
