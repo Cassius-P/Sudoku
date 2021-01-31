@@ -6,7 +6,10 @@ class VerifGrid:
         self.gridToVerify = grid;
         self.gridSize = size;
 
-        self.valid_board();
+        self.statut = self.valid_board()
+
+    def getStatut(self):
+        return self.statut
 
     def factVerif(self, numberArray):
         temp = 1
@@ -75,11 +78,11 @@ class VerifGrid:
 
             if (res1 < 1 or res2 < 1):
                 print("The board is invalid")
-                return
+                return "Grille invalide"
 
         res3 = self.valid_subsquares(self.gridToVerify)
         if (res3 < 1):
-            print("The board is invalid")
+            return "Grille invalide"
         else:
-            print("The board is valid")
+            return "Grille valide, Bravo !"
 

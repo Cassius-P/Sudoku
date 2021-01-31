@@ -62,6 +62,10 @@ class Grille:
         for i in range(self.size):
             print(self.boardComplete[i])
 
+    def setGrid(self, grid):
+        self.boardComplete = grid[0]
+        self.board = grid
+
     """def testGrille(self, row=0, column=0, value=0):
         completed = True;
         #verified = self.ValueInBlock(row, column, value)

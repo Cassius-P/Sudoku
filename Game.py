@@ -6,21 +6,33 @@ from PyQt5 import QtCore, QtGui
 from VerifGrid import *
 from Grille import Grille
 import keyboard
+import time
 import sys
 
 
 class Game(QWidget):
 
     def __init__(self, parent=None, size=int, load=[]):
-        super(Game, self).__init__(parent)
+        super().__init__(parent)
+        # crée la grille et le bouton de verif
 
-        # crée la grille et le boutonde verif
         self.table = QTableWidget(self)
         self.table.itemChanged.connect(self.changeValue)
 
-        button = QPushButton("Verifier grille")
-        button.clicked.connect(self.verifButton)
-        self.verif = button
+
+        #Verification button
+        verif = QPushButton("Verifier grille")
+        verif.clicked.connect(self.verifButton)
+        self.verif = verif
+
+        #Save Game button
+        save = QPushButton("Sauvegarder")
+        save.clicked.connect(self.saveGame)
+        self.save = save
+
+
+
+
 
         self.size = size
         self.table.setRowCount(self.size)
@@ -52,20 +64,33 @@ class Game(QWidget):
         self.table.setFont(font)
 
         # taille de la fenêtre
-        self.setFixedSize(52 * self.size + 88, 53 * self.size + 26)
+        self.setFixedSize(52 * self.size +6, 53 * self.size + 55)
 
         # positionne la table dans la fenêtre
         posit = QGridLayout()
         posit.addWidget(self.table, 0, 0)
-        posit.addWidget(self.verif, 52 * self.size, 52 * self.size)
+        #posit.addWidget(self.timer, 88 * self.size, 0)
+        posit.addWidget(self.verif, 52 * self.size,0)
+        posit.addWidget(self.save, 75 * self.size, 0)
+
         self.setLayout(posit)
 
         # Grille test
         self.grilleTest = Grille(self.size)
-        self.full = self.grilleTest.getCompleteGrille()
+        print("Load : ", load)
+        if len(load) == 0:
+            print("ng")
+            self.full = self.grilleTest.getCompleteGrille()
 
-        self.startMatrix = self.grilleTest.getGrille()
-        self.matrix = self.startMatrix
+            self.startMatrix = self.grilleTest.getGrille()
+            self.matrix = self.startMatrix
+        else:
+            print("lg")
+            self.full = load[1]
+            self.grilleTest.setGrid(load)
+            self.startMatrix = load[0]
+            self.matrix = load[2]
+            print("loaded")
 
         # intégre le delegate pour lignes en gras et les cases en couleur
         self.delegate = ItemDelegate(self.table)
@@ -81,10 +106,35 @@ class Game(QWidget):
         self.table.setFocus()
         self.table.setCurrentCell(0, 0)
 
+
+
     def verifButton(self):
         for i in range(self.size):
             print(self.matrix[i])
-        VerifGrid(self.matrix, self.size)
+        verif = VerifGrid(self.matrix, self.size)
+        self.verif.setText(verif.getStatut())
+        self.verif.setDisabled(True)
+
+    def saveGame(self):
+
+        infos = [self.startMatrix, self.full, self.matrix]
+        print('\n' + self.formatNumbers(infos[0]))
+        with open(str(time.time())+".sudoku", 'w')as file:
+            print(file)
+            file.write(self.formatNumbers(infos[0]) + "\n")
+            file.write(self.formatNumbers(infos[1]) + "\n")
+            file.write(self.formatNumbers(infos[2]) + "\n")
+            file.close()
+
+        self.save.setText("Sauvegardé !")
+        self.save.setDisabled(True)
+    def formatNumbers(self, array):
+        sep = ''
+        stringList = []
+        for n1 in array:
+            for n2 in n1:
+                stringList.append(str(n2))
+        return sep.join(stringList)
 
     def changeValue(self):
         ac = self.table.currentItem()
@@ -97,9 +147,15 @@ class Game(QWidget):
                     indice = True
                 if (self.size == 9):
                     val = int(ac.text())
-
-                    self.matrix[row][col] = val if indice != True else 0
-                    self.setCouleur((row, col), QColor(255, 255, 255) if indice != True else QColor(51, 153, 255));
+                    if(val < self.size):
+                        self.matrix[row][col] = val if indice != True else 0
+                        self.setCouleur((row, col), QColor(255, 255, 255) if indice != True else QColor(51, 153, 255));
+                        self.save.setText("Sauvegarder")
+                        self.save.setDisabled(False)
+                        self.verif.setText("Vérifier grille")
+                        self.verif.setDisabled(False)
+                    else:
+                        self.table.item(row, col).setText('')
                 else:
                     print("Grid of 16")
 
