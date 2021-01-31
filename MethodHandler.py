@@ -18,6 +18,7 @@ class HomeScreen():
 
         self.window = HomeScreenC()
         self.window.setWindowTitle("HomeScreen")
+        self.window.setFixedSize(500,500)
         self.window.show()
         sys.exit(app.exec_())
 
